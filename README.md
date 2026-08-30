@@ -68,6 +68,8 @@ right,3
 up,4
 ```
 
+If the sprite sheet has no header row, the first direction normally starts at row `0`. If it has one header row, the first direction normally starts at row `1`.
+
 The generated animation names are `state_direction`, such as `walk_left`.
 
 ## Supported layouts

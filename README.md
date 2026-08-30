@@ -1,8 +1,10 @@
 # SpriteFrames Batch Importer
 
+**English** | [简体中文](README.zh-CN.md)
+
 Godot 4 editor dock for generating named `SpriteFrames` resources from rule-based sprite sheets.
 
-The dock includes a zoomable live sprite-sheet preview with colored frame selections, visual state rows, visual direction rows, add/remove buttons, loop toggles, frame counts, and optional explicit start columns. Changes in the dock are reflected in the preview immediately.
+The dock includes Chinese and English UI, a zoomable live sprite-sheet preview with colored frame selections, visual state rows, visual direction rows, add/remove buttons, loop toggles, frame counts, and optional explicit start columns. Changes in the dock are reflected in the preview immediately.
 
 ## Install
 

@@ -201,9 +201,9 @@ func cleanup_dialogs() -> void:
 func _add_defaults() -> void:
 	_add_state("idle", 4, true, -1)
 	_add_state("walk", 4, true, -1)
-	_add_state("attack", 4, true, -1)
-	_add_state("hit", 4, true, -1)
-	_add_state("death", 4, true, -1)
+	_add_state("attack", 4, false, -1)
+	_add_state("hit", 4, false, -1)
+	_add_state("death", 4, false, -1)
 	_add_direction("down", 1)
 	_add_direction("left", 2)
 	_add_direction("right", 3)

@@ -38,9 +38,9 @@ Example:
 ```text
 idle,4,true
 walk,4,true
-attack,4,true
-hit,4,true
-death,4,true
+attack,4,false
+hit,4,false
+death,4,false
 ```
 
 When `start_column` is omitted, states are placed sequentially from `Base Column`. Use an explicit fourth value for gaps or irregular state positions:

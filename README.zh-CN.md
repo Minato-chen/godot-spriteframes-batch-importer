@@ -49,9 +49,9 @@ Dock 顶部可以选择：
 ```text
 idle    4 帧  循环
 walk    4 帧  循环
-attack  4 帧  循环
-hit     4 帧  循环
-death   4 帧  循环
+attack  4 帧  不循环
+hit     4 帧  不循环
+death   4 帧  不循环
 ```
 
 默认方向与行号为：
@@ -78,9 +78,9 @@ up     4
 ```text
 idle,4,true
 walk,4,true
-attack,4,true
-hit,4,true
-death,4,true
+attack,4,false
+hit,4,false
+death,4,false
 ```
 
 当起始列为 `-1` 时，该状态会自动接在上一个状态之后。

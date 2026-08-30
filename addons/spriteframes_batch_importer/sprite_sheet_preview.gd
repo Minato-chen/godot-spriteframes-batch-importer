@@ -13,8 +13,8 @@ const STATE_COLORS := [
 	Color(0.22, 0.65, 1.0, 0.34),
 	Color(0.35, 0.9, 0.45, 0.34),
 	Color(1.0, 0.65, 0.2, 0.34),
-	Color(0.9, 0.35, 0.7, 0.34),
-	Color(0.75, 0.45, 1.0, 0.34),
+	Color(1.0, 0.86, 0.12, 0.38),
+	Color(0.85, 0.18, 1.0, 0.38),
 	Color(0.25, 0.9, 0.85, 0.34),
 ]
 
@@ -55,15 +55,42 @@ func _draw() -> void:
 	var display_size: Vector2 = texture_size * scale_factor
 	var origin := Vector2.ZERO
 	draw_texture_rect(sheet_texture, Rect2(origin, display_size), false)
+	var selection_counts: Dictionary = {}
+	var selected_regions: Dictionary = {}
 	for state_index in state_definitions.size():
 		var state := state_definitions[state_index]
-		var color: Color = STATE_COLORS[state_index % STATE_COLORS.size()]
+		var color := _state_color(state, state_index)
 		for direction in direction_definitions:
 			for frame_index in int(state.frame_count):
-				var source_region := _source_cell(int(state.start_column) + frame_index, int(direction.row))
+				var column := int(state.start_column) + frame_index
+				var row := int(direction.row)
+				var source_region := _source_cell(column, row)
 				var screen_region := Rect2(origin + source_region.position * scale_factor, source_region.size * scale_factor)
 				draw_rect(screen_region, color, true)
 				draw_rect(screen_region, Color(color.r, color.g, color.b, 0.95), false, max(1.0, scale_factor))
+				var cell := Vector2i(column, row)
+				selection_counts[cell] = int(selection_counts.get(cell, 0)) + 1
+				selected_regions[cell] = screen_region
+	for cell in selection_counts:
+		if int(selection_counts[cell]) > 1:
+			_draw_overlap_marker(selected_regions[cell])
+
+
+func _state_color(state: Dictionary, state_index: int) -> Color:
+	var state_name := String(state.get("name", "")).to_lower()
+	if state_name == "hit" or state_name.contains("hurt"):
+		return Color(1.0, 0.86, 0.12, 0.38)
+	if state_name == "death" or state_name.contains("dead") or state_name.contains("die"):
+		return Color(0.85, 0.18, 1.0, 0.38)
+	return STATE_COLORS[state_index % STATE_COLORS.size()]
+
+
+func _draw_overlap_marker(region: Rect2) -> void:
+	var line_width := max(1.5, zoom)
+	var marker_color := Color(1.0, 1.0, 1.0, 0.95)
+	draw_rect(region.grow(-line_width * 0.5), marker_color, false, line_width)
+	draw_line(region.position, region.end, marker_color, line_width, true)
+	draw_line(Vector2(region.end.x, region.position.y), Vector2(region.position.x, region.end.y), marker_color, line_width, true)
 
 
 func _source_cell(column: int, row: int) -> Rect2:

@@ -3,11 +3,13 @@ extends VBoxContainer
 
 const PreviewControl = preload("res://addons/spriteframes_batch_importer/sprite_sheet_preview.gd")
 const LANGUAGE_SETTING := "spriteframes_batch_importer/language"
+const UI_FONT_SIZE := 14
+const TITLE_FONT_SIZE := 16
 const TEXTS := {
 	"zh": {
 		"title": "SpriteFrames 批量导入", "select_sheet": "使用文件系统中选中的 Sprite Sheet", "no_texture": "尚未选择纹理",
 		"preview_section": "实时预览", "open_preview": "展开可缩放预览", "slice_section": "切片设置",
-		"frame_width": "帧宽", "frame_height": "帧高", "margin_x": "左边距", "margin_y": "上边距", "spacing_x": "横向间隔", "spacing_y": "纵向间隔", "base_column": "起始列", "fps": "动画 FPS",
+		"frame_width": "帧宽", "frame_height": "帧高", "margin_x": "左边距", "margin_y": "上边距", "spacing_x": "横向间隔", "spacing_y": "纵向间隔", "base_column": "起始列", "fps": "动画 FPS", "fps_hint": "仅影响生成后的动画播放速度；4 FPS = 每帧 0.25 秒。",
 		"states_section": "动画状态", "state_hint": "状态按列排列；起始列为 -1 时自动接在上一状态之后。", "add_state": "+ 添加状态",
 		"directions_section": "方向与所在行", "direction_hint": "行号从 0 开始，可以跳过标题行。", "add_direction": "+ 添加方向",
 		"output_section": "输出", "generate": "生成 SpriteFrames", "state_name": "状态名", "direction_name": "方向名",
@@ -23,7 +25,7 @@ const TEXTS := {
 	"en": {
 		"title": "SpriteFrames Batch Importer", "select_sheet": "Use Selected Sprite Sheet", "no_texture": "No texture selected",
 		"preview_section": "Live Preview", "open_preview": "Expand Zoomable Preview", "slice_section": "Slice Settings",
-		"frame_width": "Frame Width", "frame_height": "Frame Height", "margin_x": "Left Margin", "margin_y": "Top Margin", "spacing_x": "Horizontal Spacing", "spacing_y": "Vertical Spacing", "base_column": "Base Column", "fps": "Animation FPS",
+		"frame_width": "Frame Width", "frame_height": "Frame Height", "margin_x": "Left Margin", "margin_y": "Top Margin", "spacing_x": "Horizontal Spacing", "spacing_y": "Vertical Spacing", "base_column": "Base Column", "fps": "Animation FPS", "fps_hint": "Only affects generated animation playback; 4 FPS = 0.25 seconds per frame.",
 		"states_section": "Animation States", "state_hint": "States run across columns. A start column of -1 continues after the previous state.", "add_state": "+ Add State",
 		"directions_section": "Directions and Rows", "direction_hint": "Rows are zero-based, so header rows can be skipped.", "add_direction": "+ Add Direction",
 		"output_section": "Output", "generate": "Generate SpriteFrames", "state_name": "State name", "direction_name": "Direction name",
@@ -73,12 +75,12 @@ func _ready() -> void:
 	_build_ui()
 	_add_defaults()
 	_refresh_preview()
+	call_deferred("_normalize_ui_fonts")
 
 
 func _build_ui() -> void:
 	var title := Label.new()
 	title.text = _t("title")
-	title.add_theme_font_size_override("font_size", 18)
 	add_child(title)
 	ui_text.title = title
 
@@ -123,7 +125,13 @@ func _build_ui() -> void:
 	spacing_x = _add_spin("spacing_x", 0, 4096, 0)
 	spacing_y = _add_spin("spacing_y", 0, 4096, 0)
 	base_column = _add_spin("base_column", 0, 4096, 0)
-	fps = _add_spin("fps", 0.1, 120.0, 8.0, 0.1)
+	fps = _add_spin("fps", 0.1, 120.0, 4.0, 0.1)
+	var fps_hint := Label.new()
+	fps_hint.text = _t("fps_hint")
+	fps_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	fps_hint.modulate = Color(0.72, 0.74, 0.78)
+	add_child(fps_hint)
+	ui_text.fps_hint = fps_hint
 
 	_add_section("states_section")
 	var state_hint := Label.new()
@@ -163,7 +171,6 @@ func _build_ui() -> void:
 
 	var generate := Button.new()
 	generate.text = _t("generate")
-	generate.add_theme_font_size_override("font_size", 16)
 	generate.pressed.connect(_generate)
 	add_child(generate)
 	ui_text.generate = generate
@@ -214,7 +221,6 @@ func _add_section(text_key: String) -> void:
 	add_child(HSeparator.new())
 	var label := Label.new()
 	label.text = _t(text_key)
-	label.add_theme_font_size_override("font_size", 15)
 	add_child(label)
 	ui_text[text_key] = label
 
@@ -287,6 +293,8 @@ func _add_state(state_name: String, count: int, loop: bool, start_column: int) -
 
 	state_entries.append({"panel": panel, "name": name_edit, "count": count_spin, "loop": loop_check, "start": start_spin, "remove": remove, "count_label": count_label, "start_label": start_label})
 	remove.pressed.connect(_remove_state.bind(panel))
+	if is_node_ready():
+		_normalize_font_tree(panel)
 	_refresh_preview()
 
 
@@ -325,6 +333,8 @@ func _add_direction(direction_name: String, row_index: int) -> void:
 	row.add_child(remove)
 	direction_entries.append({"row_control": row, "name": name_edit, "row": row_spin, "row_label": row_label, "remove": remove})
 	remove.pressed.connect(_remove_direction.bind(row))
+	if is_node_ready():
+		_normalize_font_tree(row)
 	_refresh_preview()
 
 
@@ -375,7 +385,6 @@ func _build_preview_window() -> void:
 	var preview_title := Label.new()
 	preview_title.text = _t("preview_title")
 	preview_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	preview_title.add_theme_font_size_override("font_size", 16)
 	toolbar.add_child(preview_title)
 	ui_text.preview_title = preview_title
 	var zoom_out := Button.new()
@@ -417,6 +426,8 @@ func _build_preview_window() -> void:
 	preview.mouse_filter = Control.MOUSE_FILTER_PASS
 	preview_scroll.add_child(preview)
 	_set_preview_zoom(2.0)
+	_normalize_font_tree(root)
+	preview_title.add_theme_font_size_override("font_size", TITLE_FONT_SIZE)
 
 
 func _change_zoom(multiplier: float) -> void:
@@ -593,7 +604,7 @@ func _language_selected(index: int) -> void:
 func _refresh_ui_text() -> void:
 	var static_keys := [
 		"title", "select_sheet", "open_preview", "preview_section", "slice_section",
-		"frame_width", "frame_height", "margin_x", "margin_y", "spacing_x", "spacing_y", "base_column", "fps",
+		"frame_width", "frame_height", "margin_x", "margin_y", "spacing_x", "spacing_y", "base_column", "fps", "fps_hint",
 		"states_section", "state_hint", "add_state", "directions_section", "direction_hint", "add_direction", "output_section", "generate",
 		"preview_title", "pixel_4x", "close"
 	]
@@ -619,6 +630,21 @@ func _refresh_ui_text() -> void:
 	if is_instance_valid(status):
 		status.text = ""
 	_refresh_preview()
+
+
+func _normalize_ui_fonts() -> void:
+	_normalize_font_tree(self)
+	if ui_text.has("title") and is_instance_valid(ui_text.title):
+		ui_text.title.add_theme_font_size_override("font_size", TITLE_FONT_SIZE)
+	if ui_text.has("preview_title") and is_instance_valid(ui_text.preview_title):
+		ui_text.preview_title.add_theme_font_size_override("font_size", TITLE_FONT_SIZE)
+
+
+func _normalize_font_tree(node: Node) -> void:
+	if node is Label or node is Button or node is LineEdit or node is SpinBox or node is CheckBox or node is OptionButton:
+		(node as Control).add_theme_font_size_override("font_size", UI_FONT_SIZE)
+	for child in node.get_children():
+		_normalize_font_tree(child)
 
 
 func _set_status(message: String, is_error: bool) -> void:

@@ -25,7 +25,9 @@ Enable **SpriteFrames Batch Importer** under **Project > Project Settings > Plug
 5. Expand the preview panel, zoom between 25% and 1600%, and verify the colored selections. The preview updates while settings are edited.
 6. Enter a `res://` `.tres` output path and generate the `SpriteFrames` resource.
 
-The default animation speed is 4 FPS (0.25 seconds per frame). FPS affects playback in the generated `SpriteFrames`; it does not animate the colored slice preview.
+The default animation speed is 8 FPS (0.125 seconds per frame). FPS affects playback in the generated `SpriteFrames`; it does not animate the colored slice preview.
+
+Every state uses the default FPS initially. Clear **Use Default FPS** on a state card to enter a state-specific speed. That speed applies to every direction generated for the state; for example, all `attack_*` animations share the Attack state FPS.
 
 ## Configuration format
 

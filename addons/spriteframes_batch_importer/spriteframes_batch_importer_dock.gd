@@ -9,11 +9,11 @@ const TEXTS := {
 	"zh": {
 		"title": "SpriteFrames 批量导入", "select_sheet": "使用文件系统中选中的 Sprite Sheet", "no_texture": "尚未选择纹理",
 		"preview_section": "实时预览", "open_preview": "展开可缩放预览", "slice_section": "切片设置",
-		"frame_width": "帧宽", "frame_height": "帧高", "margin_x": "左边距", "margin_y": "上边距", "spacing_x": "横向间隔", "spacing_y": "纵向间隔", "base_column": "起始列", "fps": "动画 FPS", "fps_hint": "仅影响生成后的动画播放速度；4 FPS = 每帧 0.25 秒。",
+		"frame_width": "帧宽", "frame_height": "帧高", "margin_x": "左边距", "margin_y": "上边距", "spacing_x": "横向间隔", "spacing_y": "纵向间隔", "base_column": "起始列", "fps": "默认动画 FPS", "fps_hint": "默认 8 FPS = 每帧 0.125 秒；每个状态也可以单独覆盖。",
 		"states_section": "动画状态", "state_hint": "状态按列排列；起始列为 -1 时自动接在上一状态之后。", "add_state": "+ 添加状态",
 		"directions_section": "方向与所在行", "direction_hint": "行号从 0 开始：图集没有标题行时，第一个方向填 0；有 1 行标题时，第一个方向填 1。", "add_direction": "+ 添加方向",
 		"output_section": "输出", "generate": "生成 SpriteFrames", "state_name": "状态名", "direction_name": "方向名",
-		"remove": "删除", "frame_count": "帧数", "loop": "循环", "start_column_auto": "起始列（-1 自动）", "row": "行",
+		"remove": "删除", "frame_count": "帧数", "loop": "循环", "use_default_fps": "使用默认 FPS", "state_fps": "状态 FPS", "start_column_auto": "起始列（-1 自动）", "row": "行",
 		"preview_title": "实时预览", "zoom_out": "缩小", "zoom_in": "放大", "pixel_4x": "像素画 4×", "close": "关闭",
 		"summary": "%d 个状态 × %d 个方向 = %d 个动画，共 %d 帧",
 		"keep_state": "至少保留一个动画状态。", "keep_direction": "至少保留一个方向。", "editor_unavailable": "编辑器接口尚未初始化，请重新启用插件。",
@@ -25,11 +25,11 @@ const TEXTS := {
 	"en": {
 		"title": "SpriteFrames Batch Importer", "select_sheet": "Use Selected Sprite Sheet", "no_texture": "No texture selected",
 		"preview_section": "Live Preview", "open_preview": "Expand Zoomable Preview", "slice_section": "Slice Settings",
-		"frame_width": "Frame Width", "frame_height": "Frame Height", "margin_x": "Left Margin", "margin_y": "Top Margin", "spacing_x": "Horizontal Spacing", "spacing_y": "Vertical Spacing", "base_column": "Base Column", "fps": "Animation FPS", "fps_hint": "Only affects generated animation playback; 4 FPS = 0.25 seconds per frame.",
+		"frame_width": "Frame Width", "frame_height": "Frame Height", "margin_x": "Left Margin", "margin_y": "Top Margin", "spacing_x": "Horizontal Spacing", "spacing_y": "Vertical Spacing", "base_column": "Base Column", "fps": "Default Animation FPS", "fps_hint": "Default: 8 FPS = 0.125 seconds per frame. Each state can override it.",
 		"states_section": "Animation States", "state_hint": "States run across columns. A start column of -1 continues after the previous state.", "add_state": "+ Add State",
 		"directions_section": "Directions and Rows", "direction_hint": "Rows are zero-based: use 0 for the first direction when the sheet has no header row, or 1 when it has one header row.", "add_direction": "+ Add Direction",
 		"output_section": "Output", "generate": "Generate SpriteFrames", "state_name": "State name", "direction_name": "Direction name",
-		"remove": "Remove", "frame_count": "Frames", "loop": "Loop", "start_column_auto": "Start Column (-1 Auto)", "row": "Row",
+		"remove": "Remove", "frame_count": "Frames", "loop": "Loop", "use_default_fps": "Use Default FPS", "state_fps": "State FPS", "start_column_auto": "Start Column (-1 Auto)", "row": "Row",
 		"preview_title": "Live Preview", "zoom_out": "Zoom Out", "zoom_in": "Zoom In", "pixel_4x": "Pixel Art 4×", "close": "Close",
 		"summary": "%d states × %d directions = %d animations, %d frames total",
 		"keep_state": "Keep at least one animation state.", "keep_direction": "Keep at least one direction.", "editor_unavailable": "The editor interface is unavailable. Re-enable the plugin.",
@@ -125,7 +125,8 @@ func _build_ui() -> void:
 	spacing_x = _add_spin("spacing_x", 0, 4096, 0)
 	spacing_y = _add_spin("spacing_y", 0, 4096, 0)
 	base_column = _add_spin("base_column", 0, 4096, 0)
-	fps = _add_spin("fps", 0.1, 120.0, 4.0, 0.1)
+	fps = _add_spin("fps", 0.1, 120.0, 8.0, 0.1)
+	fps.value_changed.connect(_default_fps_changed)
 	var fps_hint := Label.new()
 	fps_hint.text = _t("fps_hint")
 	fps_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -278,6 +279,26 @@ func _add_state(state_name: String, count: int, loop: bool, start_column: int) -
 	loop_check.toggled.connect(_toggle_changed)
 	options.add_child(loop_check)
 
+	var fps_row := HBoxContainer.new()
+	column.add_child(fps_row)
+	var use_default_fps := CheckBox.new()
+	use_default_fps.text = _t("use_default_fps")
+	use_default_fps.button_pressed = true
+	fps_row.add_child(use_default_fps)
+	var state_fps_label := Label.new()
+	state_fps_label.text = _t("state_fps")
+	fps_row.add_child(state_fps_label)
+	var state_fps := SpinBox.new()
+	state_fps.min_value = 0.1
+	state_fps.max_value = 120.0
+	state_fps.step = 0.1
+	state_fps.value = fps.value if is_instance_valid(fps) else 8.0
+	state_fps.editable = false
+	state_fps.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	state_fps.value_changed.connect(_setting_changed)
+	fps_row.add_child(state_fps)
+	use_default_fps.toggled.connect(_state_default_fps_toggled.bind(state_fps))
+
 	var start_row := HBoxContainer.new()
 	column.add_child(start_row)
 	var start_label := Label.new()
@@ -291,7 +312,7 @@ func _add_state(state_name: String, count: int, loop: bool, start_column: int) -
 	start_spin.value_changed.connect(_setting_changed)
 	start_row.add_child(start_spin)
 
-	state_entries.append({"panel": panel, "name": name_edit, "count": count_spin, "loop": loop_check, "start": start_spin, "remove": remove, "count_label": count_label, "start_label": start_label})
+	state_entries.append({"panel": panel, "name": name_edit, "count": count_spin, "loop": loop_check, "use_default_fps": use_default_fps, "state_fps": state_fps, "state_fps_label": state_fps_label, "start": start_spin, "remove": remove, "count_label": count_label, "start_label": start_label})
 	remove.pressed.connect(_remove_state.bind(panel))
 	if is_node_ready():
 		_normalize_font_tree(panel)
@@ -456,6 +477,20 @@ func _setting_changed(_value: float) -> void:
 	_refresh_preview()
 
 
+func _default_fps_changed(value: float) -> void:
+	for entry in state_entries:
+		if entry.use_default_fps.button_pressed:
+			entry.state_fps.value = value
+	_refresh_preview()
+
+
+func _state_default_fps_toggled(use_default: bool, state_fps: SpinBox) -> void:
+	state_fps.editable = not use_default
+	if use_default and is_instance_valid(fps):
+		state_fps.value = fps.value
+	_refresh_preview()
+
+
 func _text_changed(_value: String) -> void:
 	_refresh_preview()
 
@@ -471,7 +506,8 @@ func _resolved_states() -> Array[Dictionary]:
 		var explicit_start := int(entry.start.value)
 		var resolved_start := explicit_start if explicit_start >= 0 else next_column
 		var count := int(entry.count.value)
-		result.append({"name": entry.name.text.strip_edges().to_snake_case(), "frame_count": count, "loop": entry.loop.button_pressed, "start_column": resolved_start})
+		var animation_fps: float = float(fps.value if entry.use_default_fps.button_pressed else entry.state_fps.value)
+		result.append({"name": entry.name.text.strip_edges().to_snake_case(), "frame_count": count, "loop": entry.loop.button_pressed, "fps": animation_fps, "start_column": resolved_start})
 		next_column = resolved_start + count
 	return result
 
@@ -531,7 +567,7 @@ func _generate() -> void:
 		for direction in directions:
 			var animation_name := StringName("%s_%s" % [state.name, direction.name])
 			frames.add_animation(animation_name)
-			frames.set_animation_speed(animation_name, fps.value)
+			frames.set_animation_speed(animation_name, float(state.fps))
 			frames.set_animation_loop_mode(animation_name, SpriteFrames.LOOP_LINEAR if state.loop else SpriteFrames.LOOP_NONE)
 			for frame_index in int(state.frame_count):
 				var region := _cell_region(int(state.start_column) + frame_index, int(direction.row))
@@ -620,6 +656,8 @@ func _refresh_ui_text() -> void:
 		entry.remove.text = _t("remove")
 		entry.count_label.text = _t("frame_count")
 		entry.loop.text = _t("loop")
+		entry.use_default_fps.text = _t("use_default_fps")
+		entry.state_fps_label.text = _t("state_fps")
 		entry.start_label.text = _t("start_column_auto")
 	for entry in direction_entries:
 		entry.name.placeholder_text = _t("direction_name")

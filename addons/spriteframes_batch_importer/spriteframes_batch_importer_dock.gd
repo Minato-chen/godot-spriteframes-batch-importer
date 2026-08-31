@@ -3,8 +3,6 @@ extends VBoxContainer
 
 const PreviewControl = preload("res://addons/spriteframes_batch_importer/sprite_sheet_preview.gd")
 const LANGUAGE_SETTING := "spriteframes_batch_importer/language"
-const UI_FONT_SIZE := 16
-const TITLE_FONT_SIZE := 18
 const TEXTS := {
 	"zh": {
 		"title": "SpriteFrames 批量导入", "select_sheet": "使用文件系统中选中的 Sprite Sheet", "no_texture": "尚未选择纹理",
@@ -75,7 +73,6 @@ func _ready() -> void:
 	_build_ui()
 	_add_defaults()
 	_refresh_preview()
-	call_deferred("_normalize_ui_fonts")
 
 
 func _build_ui() -> void:
@@ -314,8 +311,6 @@ func _add_state(state_name: String, count: int, loop: bool, start_column: int) -
 
 	state_entries.append({"panel": panel, "name": name_edit, "count": count_spin, "loop": loop_check, "use_default_fps": use_default_fps, "state_fps": state_fps, "state_fps_label": state_fps_label, "start": start_spin, "remove": remove, "count_label": count_label, "start_label": start_label})
 	remove.pressed.connect(_remove_state.bind(panel))
-	if is_node_ready():
-		_normalize_font_tree(panel)
 	_refresh_preview()
 
 
@@ -354,8 +349,6 @@ func _add_direction(direction_name: String, row_index: int) -> void:
 	row.add_child(remove)
 	direction_entries.append({"row_control": row, "name": name_edit, "row": row_spin, "row_label": row_label, "remove": remove})
 	remove.pressed.connect(_remove_direction.bind(row))
-	if is_node_ready():
-		_normalize_font_tree(row)
 	_refresh_preview()
 
 
@@ -447,8 +440,6 @@ func _build_preview_window() -> void:
 	preview.mouse_filter = Control.MOUSE_FILTER_PASS
 	preview_scroll.add_child(preview)
 	_set_preview_zoom(2.0)
-	_normalize_font_tree(root)
-	preview_title.add_theme_font_size_override("font_size", TITLE_FONT_SIZE)
 
 
 func _change_zoom(multiplier: float) -> void:
@@ -668,21 +659,6 @@ func _refresh_ui_text() -> void:
 	if is_instance_valid(status):
 		status.text = ""
 	_refresh_preview()
-
-
-func _normalize_ui_fonts() -> void:
-	_normalize_font_tree(self)
-	if ui_text.has("title") and is_instance_valid(ui_text.title):
-		ui_text.title.add_theme_font_size_override("font_size", TITLE_FONT_SIZE)
-	if ui_text.has("preview_title") and is_instance_valid(ui_text.preview_title):
-		ui_text.preview_title.add_theme_font_size_override("font_size", TITLE_FONT_SIZE)
-
-
-func _normalize_font_tree(node: Node) -> void:
-	if node is Label or node is Button or node is LineEdit or node is SpinBox or node is CheckBox or node is OptionButton:
-		(node as Control).add_theme_font_size_override("font_size", UI_FONT_SIZE)
-	for child in node.get_children():
-		_normalize_font_tree(child)
 
 
 func _set_status(message: String, is_error: bool) -> void:

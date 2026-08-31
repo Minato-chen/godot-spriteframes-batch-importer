@@ -3,8 +3,8 @@ extends VBoxContainer
 
 const PreviewControl = preload("res://addons/spriteframes_batch_importer/sprite_sheet_preview.gd")
 const LANGUAGE_SETTING := "spriteframes_batch_importer/language"
-const UI_FONT_SIZE := 14
-const TITLE_FONT_SIZE := 16
+const UI_FONT_SIZE := 16
+const TITLE_FONT_SIZE := 18
 const TEXTS := {
 	"zh": {
 		"title": "SpriteFrames 批量导入", "select_sheet": "使用文件系统中选中的 Sprite Sheet", "no_texture": "尚未选择纹理",

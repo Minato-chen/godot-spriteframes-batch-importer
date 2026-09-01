@@ -1,19 +1,23 @@
 @tool
 extends EditorPlugin
 
+const DOCK_CONTENT = preload("res://addons/spriteframes_batch_importer/spriteframes_batch_importer_dock.gd")
+
 var dock: ScrollContainer
 var dock_content: Control
 
 
 func _enter_tree() -> void:
+	var language := "zh" if TranslationServer.get_locale().begins_with("zh") else "en"
 	dock = ScrollContainer.new()
-	dock.name = "帧导入"
+	dock.name = "帧导入" if language == "zh" else "Frame Import"
 	dock.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	dock.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	dock.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	dock.size_flags_vertical = Control.SIZE_EXPAND_FILL
 
-	dock_content = preload("res://addons/spriteframes_batch_importer/spriteframes_batch_importer_dock.gd").new()
+	dock_content = DOCK_CONTENT.new()
+	dock_content.set_language(language)
 	dock_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	dock_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	dock.add_child(dock_content)

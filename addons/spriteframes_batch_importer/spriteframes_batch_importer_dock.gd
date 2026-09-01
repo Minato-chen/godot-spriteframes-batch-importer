@@ -2,37 +2,36 @@
 extends VBoxContainer
 
 const PreviewControl = preload("res://addons/spriteframes_batch_importer/sprite_sheet_preview.gd")
-const LANGUAGE_SETTING := "spriteframes_batch_importer/language"
 const TEXTS := {
 	"zh": {
-		"title": "SpriteFrames 批量导入", "select_sheet": "使用文件系统中选中的 Sprite Sheet", "no_texture": "尚未选择纹理",
-		"preview_section": "实时预览", "open_preview": "展开可缩放预览", "slice_section": "切片设置",
-		"frame_width": "帧宽", "frame_height": "帧高", "margin_x": "左边距", "margin_y": "上边距", "spacing_x": "横向间隔", "spacing_y": "纵向间隔", "base_column": "起始列", "fps": "默认动画 FPS", "fps_hint": "默认 8 FPS = 每帧 0.125 秒；每个状态也可以单独覆盖。",
+		"dock_title": "帧导入", "title": "SpriteFrames 批量导入", "language": "界面语言", "select_sheet": "使用文件系统中选中的图集", "no_texture": "尚未选择图集",
+		"preview_section": "图集预览", "open_preview": "展开可缩放预览", "slice_section": "切片设置",
+		"frame_width": "帧宽（像素）", "frame_height": "帧高（像素）", "margin_x": "左边距（像素）", "margin_y": "上边距（像素）", "spacing_x": "横向间隔（像素）", "spacing_y": "纵向间隔（像素）", "base_column": "起始列（列号）", "fps": "默认动画速度（FPS）", "fps_hint": "默认速度为 8 FPS，即每帧 0.125 秒；每个状态也可以单独设置。",
 		"states_section": "动画状态", "state_hint": "状态按列排列；起始列为 -1 时自动接在上一状态之后。", "add_state": "+ 添加状态",
-		"directions_section": "方向与所在行", "direction_hint": "行号从 0 开始：图集没有标题行时，第一个方向填 0；有 1 行标题时，第一个方向填 1。", "add_direction": "+ 添加方向",
-		"output_section": "输出", "generate": "生成 SpriteFrames", "state_name": "状态名", "direction_name": "方向名",
-		"remove": "删除", "frame_count": "帧数", "loop": "循环", "use_default_fps": "使用默认 FPS", "state_fps": "状态 FPS", "start_column_auto": "起始列（-1 自动）", "row": "行",
-		"preview_title": "实时预览", "zoom_out": "缩小", "zoom_in": "放大", "pixel_4x": "像素画 4×", "close": "关闭",
-		"summary": "%d 个状态 × %d 个方向 = %d 个动画，共 %d 帧",
+		"directions_section": "方向与行号", "direction_hint": "行号从 0 开始：图集没有标题行时，第一个方向填 0；有 1 行标题时，第一个方向填 1。", "add_direction": "+ 添加方向",
+		"output_section": "输出设置", "generate": "生成 SpriteFrames", "state_name": "状态名称", "direction_name": "方向名称",
+		"remove": "删除", "frame_count": "帧数（帧）", "loop": "循环", "use_default_fps": "使用默认 FPS", "state_fps": "状态速度（FPS）", "start_column_auto": "起始列（列号；-1 为自动）", "row": "行号",
+		"preview_title": "图集预览", "zoom_out": "缩小", "zoom_in": "放大", "pixel_4x": "像素画 4×", "close": "关闭",
+		"summary": "预览统计：%d 个状态 × %d 个方向，将生成 %d 个动画、共 %d 帧",
 		"keep_state": "至少保留一个动画状态。", "keep_direction": "至少保留一个方向。", "editor_unavailable": "编辑器接口尚未初始化，请重新启用插件。",
-		"select_hint": "请先在 Godot 文件系统面板中选中 PNG、WebP 或 SVG。", "texture_loaded": "纹理已载入，请检查预览中的彩色选区。",
-		"select_first": "请先选择 Sprite Sheet。", "path_res": "输出路径必须位于 res:// 内。", "out_of_bounds": "选区越界：%s 第 %d 帧。",
+		"select_hint": "请先在 Godot 文件系统面板中选中 PNG、WebP 或 SVG 图集。", "texture_loaded": "图集已载入，请检查预览中的彩色选区。",
+		"select_first": "请先选择图集。", "path_res": "输出路径必须位于 res:// 内。", "out_of_bounds": "选区越界：%s 的第 %d 帧。",
 		"mkdir_failed": "无法创建输出目录。", "save_failed": "保存失败，错误代码：%d", "generated": "生成完成：%d 个动画、%d 帧。\n%s",
 		"empty_state": "状态名称不能为空。", "empty_direction": "方向名称不能为空。", "duplicate": "动画名称重复：%s"
 	},
 	"en": {
-		"title": "SpriteFrames Batch Importer", "select_sheet": "Use Selected Sprite Sheet", "no_texture": "No texture selected",
-		"preview_section": "Live Preview", "open_preview": "Expand Zoomable Preview", "slice_section": "Slice Settings",
-		"frame_width": "Frame Width", "frame_height": "Frame Height", "margin_x": "Left Margin", "margin_y": "Top Margin", "spacing_x": "Horizontal Spacing", "spacing_y": "Vertical Spacing", "base_column": "Base Column", "fps": "Default Animation FPS", "fps_hint": "Default: 8 FPS = 0.125 seconds per frame. Each state can override it.",
+		"dock_title": "Frame Import", "title": "SpriteFrames Batch Importer", "language": "Interface Language", "select_sheet": "Use Selected Sprite Sheet", "no_texture": "No sprite sheet selected",
+		"preview_section": "Sprite Sheet Preview", "open_preview": "Expand Zoomable Preview", "slice_section": "Slice Settings",
+		"frame_width": "Frame Width (px)", "frame_height": "Frame Height (px)", "margin_x": "Left Margin (px)", "margin_y": "Top Margin (px)", "spacing_x": "Horizontal Spacing (px)", "spacing_y": "Vertical Spacing (px)", "base_column": "Base Column (index)", "fps": "Default Animation Speed (FPS)", "fps_hint": "The default speed is 8 FPS, or 0.125 seconds per frame. Each state can override it.",
 		"states_section": "Animation States", "state_hint": "States run across columns. A start column of -1 continues after the previous state.", "add_state": "+ Add State",
-		"directions_section": "Directions and Rows", "direction_hint": "Rows are zero-based: use 0 for the first direction when the sheet has no header row, or 1 when it has one header row.", "add_direction": "+ Add Direction",
-		"output_section": "Output", "generate": "Generate SpriteFrames", "state_name": "State name", "direction_name": "Direction name",
-		"remove": "Remove", "frame_count": "Frames", "loop": "Loop", "use_default_fps": "Use Default FPS", "state_fps": "State FPS", "start_column_auto": "Start Column (-1 Auto)", "row": "Row",
-		"preview_title": "Live Preview", "zoom_out": "Zoom Out", "zoom_in": "Zoom In", "pixel_4x": "Pixel Art 4×", "close": "Close",
-		"summary": "%d states × %d directions = %d animations, %d frames total",
+		"directions_section": "Directions and Row Indices", "direction_hint": "Rows are zero-based: use 0 for the first direction when the sheet has no header row, or 1 when it has one header row.", "add_direction": "+ Add Direction",
+		"output_section": "Output Settings", "generate": "Generate SpriteFrames", "state_name": "State Name", "direction_name": "Direction Name",
+		"remove": "Remove", "frame_count": "Frame Count (frames)", "loop": "Loop", "use_default_fps": "Use Default FPS", "state_fps": "State Speed (FPS)", "start_column_auto": "Start Column (index; -1 for Auto)", "row": "Row Index",
+		"preview_title": "Sprite Sheet Preview", "zoom_out": "Zoom Out", "zoom_in": "Zoom In", "pixel_4x": "Pixel Art 4×", "close": "Close",
+		"summary": "Preview summary: %d states × %d directions will generate %d animations with %d frames total",
 		"keep_state": "Keep at least one animation state.", "keep_direction": "Keep at least one direction.", "editor_unavailable": "The editor interface is unavailable. Re-enable the plugin.",
 		"select_hint": "Select a PNG, WebP, or SVG in Godot's FileSystem dock first.", "texture_loaded": "Texture loaded. Check the colored selections in the preview.",
-		"select_first": "Select a Sprite Sheet first.", "path_res": "The output path must be inside res://.", "out_of_bounds": "Selection out of bounds: %s frame %d.",
+		"select_first": "Select a sprite sheet first.", "path_res": "The output path must be inside res://.", "out_of_bounds": "Selection out of bounds: %s, frame %d.",
 		"mkdir_failed": "Could not create the output directory.", "save_failed": "Save failed with error code %d.", "generated": "Generated %d animations and %d frames.\n%s",
 		"empty_state": "State names cannot be empty.", "empty_direction": "Direction names cannot be empty.", "duplicate": "Duplicate animation name: %s"
 	}
@@ -67,7 +66,7 @@ var ui_text: Dictionary = {}
 
 
 func _ready() -> void:
-	current_language = "zh" if TranslationServer.get_locale().begins_with("zh") else "en"
+	auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	custom_minimum_size = Vector2(300, 0)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_build_ui()
@@ -84,7 +83,7 @@ func _build_ui() -> void:
 	var language_row := HBoxContainer.new()
 	add_child(language_row)
 	var language_label := Label.new()
-	language_label.text = "语言 / Language"
+	language_label.text = _t("language")
 	language_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	language_row.add_child(language_label)
 	language_picker = OptionButton.new()
@@ -177,20 +176,12 @@ func _build_ui() -> void:
 	add_child(status)
 
 
+func set_language(language: String) -> void:
+	current_language = "zh" if language.begins_with("zh") else "en"
+
 
 func setup_editor(new_editor_interface: EditorInterface) -> void:
 	editor_interface = new_editor_interface
-	var settings := editor_interface.get_editor_settings()
-	if settings.has_setting(LANGUAGE_SETTING):
-		current_language = String(settings.get_setting(LANGUAGE_SETTING))
-	else:
-		var editor_language := "en"
-		if settings.has_setting("interface/editor/editor_language"):
-			editor_language = String(settings.get_setting("interface/editor/editor_language"))
-		current_language = "zh" if editor_language.begins_with("zh") else "en"
-	if is_instance_valid(language_picker):
-		language_picker.select(0 if current_language == "zh" else 1)
-	_refresh_ui_text()
 
 
 func cleanup_dialogs() -> void:
@@ -394,50 +385,62 @@ func _build_preview_window() -> void:
 
 	var root := VBoxContainer.new()
 	preview_window.add_child(root)
-	var toolbar := HBoxContainer.new()
+	var toolbar := VBoxContainer.new()
 	root.add_child(toolbar)
+	var zoom_row := HBoxContainer.new()
+	toolbar.add_child(zoom_row)
 	var preview_title := Label.new()
 	preview_title.text = _t("preview_title")
 	preview_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	toolbar.add_child(preview_title)
+	zoom_row.add_child(preview_title)
 	ui_text.preview_title = preview_title
 	var zoom_out := Button.new()
 	zoom_out.text = "−"
 	zoom_out.tooltip_text = _t("zoom_out")
 	zoom_out.pressed.connect(_change_zoom.bind(0.5))
-	toolbar.add_child(zoom_out)
+	zoom_row.add_child(zoom_out)
 	ui_text.zoom_out = zoom_out
 	zoom_label = Label.new()
 	zoom_label.custom_minimum_size.x = 72
 	zoom_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	toolbar.add_child(zoom_label)
+	zoom_row.add_child(zoom_label)
 	var zoom_in := Button.new()
 	zoom_in.text = "+"
 	zoom_in.tooltip_text = _t("zoom_in")
 	zoom_in.pressed.connect(_change_zoom.bind(2.0))
-	toolbar.add_child(zoom_in)
+	zoom_row.add_child(zoom_in)
 	ui_text.zoom_in = zoom_in
 	var reset_zoom := Button.new()
 	reset_zoom.text = "100%"
 	reset_zoom.pressed.connect(_set_preview_zoom.bind(1.0))
-	toolbar.add_child(reset_zoom)
+	zoom_row.add_child(reset_zoom)
+	var action_row := HBoxContainer.new()
+	action_row.alignment = BoxContainer.ALIGNMENT_END
+	toolbar.add_child(action_row)
 	var pixel_zoom := Button.new()
 	pixel_zoom.text = _t("pixel_4x")
 	pixel_zoom.pressed.connect(_set_preview_zoom.bind(4.0))
-	toolbar.add_child(pixel_zoom)
+	action_row.add_child(pixel_zoom)
 	ui_text.pixel_4x = pixel_zoom
 	var close_preview := Button.new()
 	close_preview.text = _t("close")
 	close_preview.pressed.connect(preview_window.hide)
-	toolbar.add_child(close_preview)
+	action_row.add_child(close_preview)
 	ui_text.close = close_preview
 
+	var preview_area := Control.new()
+	preview_area.custom_minimum_size = Vector2(0, 420)
+	preview_area.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	preview_area.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root.add_child(preview_area)
 	preview_scroll = ScrollContainer.new()
+	preview_scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	preview_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	preview_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	root.add_child(preview_scroll)
+	preview_area.add_child(preview_scroll)
 	preview = PreviewControl.new()
 	preview.mouse_filter = Control.MOUSE_FILTER_PASS
+	preview.set_empty_message(_t("no_texture"))
 	preview_scroll.add_child(preview)
 	_set_preview_zoom(2.0)
 
@@ -459,7 +462,8 @@ func _source_selected(path: String) -> void:
 	source_path = path
 	source_texture = load(path) as Texture2D
 	source_value.text = path
-	output_path.text = "res://generated/%s_frames.tres" % path.get_file().get_basename().to_snake_case()
+	var output_file_name := "%s_frames.tres" % path.get_file().get_basename()
+	output_path.text = path.get_base_dir().path_join(output_file_name)
 	_set_status(_t("texture_loaded"), false)
 	_refresh_preview()
 
@@ -623,12 +627,14 @@ func _t(key: String) -> String:
 
 func _language_selected(index: int) -> void:
 	current_language = "zh" if index == 0 else "en"
-	if editor_interface != null:
-		editor_interface.get_editor_settings().set_setting(LANGUAGE_SETTING, current_language)
 	_refresh_ui_text()
 
 
 func _refresh_ui_text() -> void:
+	if is_instance_valid(language_picker):
+		var language_label := language_picker.get_parent().get_child(0) as Label
+		if language_label != null:
+			language_label.text = _t("language")
 	var static_keys := [
 		"title", "select_sheet", "open_preview", "preview_section", "slice_section",
 		"frame_width", "frame_height", "margin_x", "margin_y", "spacing_x", "spacing_y", "base_column", "fps", "fps_hint",
@@ -658,6 +664,8 @@ func _refresh_ui_text() -> void:
 		source_value.text = _t("no_texture")
 	if is_instance_valid(status):
 		status.text = ""
+	if is_instance_valid(preview):
+		preview.set_empty_message(_t("no_texture"))
 	_refresh_preview()
 
 

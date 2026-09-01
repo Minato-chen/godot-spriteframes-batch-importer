@@ -8,6 +8,7 @@ var sheet_spacing := Vector2i.ZERO
 var state_definitions: Array[Dictionary] = []
 var direction_definitions: Array[Dictionary] = []
 var zoom := 2.0
+var empty_message := "No sprite sheet selected"
 
 const STATE_COLORS := [
 	Color(0.22, 0.65, 1.0, 0.34),
@@ -36,6 +37,11 @@ func set_zoom(new_zoom: float) -> void:
 	queue_redraw()
 
 
+func set_empty_message(message: String) -> void:
+	empty_message = message
+	queue_redraw()
+
+
 func _update_minimum_size() -> void:
 	if sheet_texture == null:
 		custom_minimum_size = Vector2(640, 480)
@@ -46,7 +52,7 @@ func _update_minimum_size() -> void:
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.07, 0.08, 0.1, 1.0), true)
 	if sheet_texture == null:
-		_draw_centered_text("尚未选择 Sprite Sheet")
+		_draw_centered_text(empty_message)
 		return
 	var texture_size := Vector2(sheet_texture.get_size())
 	if texture_size.x <= 0.0 or texture_size.y <= 0.0:

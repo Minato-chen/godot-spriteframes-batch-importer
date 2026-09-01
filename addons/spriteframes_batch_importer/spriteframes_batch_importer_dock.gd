@@ -126,7 +126,7 @@ func _build_ui() -> void:
 	add_child(direction_list)
 	var add_direction := Button.new()
 	add_direction.text = _t("add_direction")
-	add_direction.pressed.connect(_add_direction.bind("direction", 0))
+	add_direction.pressed.connect(_add_direction_button_pressed)
 	add_child(add_direction)
 	ui_text.add_direction = add_direction
 
@@ -324,6 +324,13 @@ func _add_direction(direction_name: String, row_index: int) -> void:
 	})
 	remove.pressed.connect(_remove_direction.bind(row))
 	_refresh_preview()
+
+
+func _add_direction_button_pressed() -> void:
+	var next_row := 0
+	for entry in direction_entries:
+		next_row = maxi(next_row, int(entry.row.value) + 1)
+	_add_direction("direction", next_row)
 
 
 func _remove_direction(row_control: Control) -> void:

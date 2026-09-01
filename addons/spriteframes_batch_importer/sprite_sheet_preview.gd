@@ -63,6 +63,7 @@ func _draw() -> void:
 	draw_texture_rect(sheet_texture, Rect2(origin, display_size), false)
 	var selection_counts: Dictionary = {}
 	var selected_regions: Dictionary = {}
+	var direction_numbers := _direction_numbers()
 	for state_index in state_definitions.size():
 		var state := state_definitions[state_index]
 		var state_color := _state_color(state, state_index)
@@ -76,7 +77,7 @@ func _draw() -> void:
 				var screen_region := Rect2(origin + source_region.position * scale_factor, source_region.size * scale_factor)
 				draw_rect(screen_region, color, true)
 				draw_rect(screen_region, Color(color.r, color.g, color.b, 0.95), false, max(1.0, scale_factor))
-				_draw_direction_index(screen_region, direction_index + 1)
+				_draw_direction_index(screen_region, direction_numbers[direction_index])
 				var cell := Vector2i(column, row)
 				selection_counts[cell] = int(selection_counts.get(cell, 0)) + 1
 				selected_regions[cell] = screen_region
@@ -92,6 +93,17 @@ func _state_color(state: Dictionary, state_index: int) -> Color:
 	if state_name == "death" or state_name.contains("dead") or state_name.contains("die"):
 		return Color(0.85, 0.18, 1.0, 0.38)
 	return STATE_COLORS[state_index % STATE_COLORS.size()]
+
+
+func _direction_numbers() -> Array[int]:
+	var numbers: Array[int] = []
+	for direction in direction_definitions:
+		var number := 1
+		for other_direction in direction_definitions:
+			if int(other_direction.row) < int(direction.row):
+				number += 1
+		numbers.append(number)
+	return numbers
 
 
 func _draw_direction_index(region: Rect2, direction_number: int) -> void:

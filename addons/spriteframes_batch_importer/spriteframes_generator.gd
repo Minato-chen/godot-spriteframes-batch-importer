@@ -1,6 +1,8 @@
 @tool
 extends RefCounted
 
+const Config = preload("res://addons/spriteframes_batch_importer/importer_config.gd")
+
 
 func build(
 		source_texture: Texture2D,
@@ -12,8 +14,14 @@ func build(
 ) -> SpriteFrames:
 	var frames := SpriteFrames.new()
 	clear_animations(frames)
-	for state in states:
-		for direction in directions:
+	var state_configs: Array[RefCounted] = []
+	for state_data in states:
+		state_configs.append(Config.State.from_dictionary(state_data))
+	var direction_configs: Array[RefCounted] = []
+	for direction_data in directions:
+		direction_configs.append(Config.Direction.from_dictionary(direction_data))
+	for state in state_configs:
+		for direction in direction_configs:
 			var animation_name := StringName("%s_%s" % [state.name, direction.name])
 			frames.add_animation(animation_name)
 			frames.set_animation_speed(animation_name, float(state.fps))

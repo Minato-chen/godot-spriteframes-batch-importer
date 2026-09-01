@@ -14,6 +14,8 @@
   <a href="https://youtu.be/MlzD47Uo8uo">
     <img src="https://img.youtube.com/vi/MlzD47Uo8uo/maxresdefault.jpg" alt="Watch the workflow demo on YouTube" width="720">
   </a>
+  <br>
+  <a href="https://youtu.be/MlzD47Uo8uo">▶ Watch the workflow demo on YouTube</a>
 </p>
 
 Godot 4 editor dock for generating named `SpriteFrames` resources from rule-based sprite sheets.

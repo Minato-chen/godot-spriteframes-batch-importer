@@ -14,6 +14,8 @@
   <a href="https://youtu.be/MlzD47Uo8uo">
     <img src="https://img.youtube.com/vi/MlzD47Uo8uo/maxresdefault.jpg" alt="在 YouTube 查看操作演示" width="720">
   </a>
+  <br>
+  <a href="https://youtu.be/MlzD47Uo8uo">▶ 点击播放 YouTube 操作演示</a>
 </p>
 
 这是一个 Godot 4 编辑器插件，用于按照规则从 Sprite Sheet 批量生成带名称的 `SpriteFrames` 资源。

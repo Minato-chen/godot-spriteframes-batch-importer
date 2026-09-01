@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="media/godot-spriteframes-batch-importer-workflow.mp4">Watch the workflow demo</a>
+  <a href="https://youtu.be/MlzD47Uo8uo">Watch the workflow demo on YouTube</a>
 </p>
 
 Godot 4 editor dock for generating named `SpriteFrames` resources from rule-based sprite sheets.

@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="media/godot-spriteframes-batch-importer-workflow.mp4">查看操作演示视频</a>
+  <a href="https://youtu.be/MlzD47Uo8uo">在 YouTube 查看操作演示</a>
 </p>
 
 这是一个 Godot 4 编辑器插件，用于按照规则从 Sprite Sheet 批量生成带名称的 `SpriteFrames` 资源。

@@ -3,6 +3,7 @@ extends VBoxContainer
 
 const PreviewControl = preload("res://addons/spriteframes_batch_importer/sprite_sheet_preview.gd")
 const Localization = preload("res://addons/spriteframes_batch_importer/localization.gd")
+const Generator = preload("res://addons/spriteframes_batch_importer/spriteframes_generator.gd")
 
 var source_path := ""
 var source_texture: Texture2D
@@ -33,6 +34,7 @@ var language_picker: OptionButton
 var ui_text: Dictionary = {}
 var pending_overwrite_path := ""
 var confirmed_overwrite_path := ""
+var generator := Generator.new()
 
 
 func _ready() -> void:
@@ -556,22 +558,29 @@ func _generate() -> void:
 	if not _is_output_writable(save_path):
 		return
 
-	var generated_frames := _build_sprite_frames(states, directions)
+	var generated_frames: SpriteFrames = generator.build(
+		source_texture,
+		Vector2i(int(frame_width.value), int(frame_height.value)),
+		Vector2i(int(margin_x.value), int(margin_y.value)),
+		Vector2i(int(spacing_x.value), int(spacing_y.value)),
+		states,
+		directions
+	)
 	var frames := generated_frames
 	var backup_frames: SpriteFrames = null
 	if existing_frames != null:
 		backup_frames = existing_frames.duplicate(true) as SpriteFrames
-		_copy_animations(generated_frames, existing_frames)
+		generator.copy_animations(generated_frames, existing_frames)
 		frames = existing_frames
 	var error := ResourceSaver.save(frames, save_path)
 	if error != OK:
 		if backup_frames != null:
-			_copy_animations(backup_frames, frames)
+			generator.copy_animations(backup_frames, frames)
 			frames.emit_changed()
 		_set_status(_t("save_failed") % error, true)
 		return
 	frames.emit_changed()
-	_set_status(_t("generated") % [states.size() * directions.size(), _frame_total(states, directions), save_path], false)
+	_set_status(_t("generated") % [states.size() * directions.size(), generator.frame_total(states, directions), save_path], false)
 
 
 func _load_existing_sprite_frames(save_path: String) -> SpriteFrames:
@@ -580,24 +589,6 @@ func _load_existing_sprite_frames(save_path: String) -> SpriteFrames:
 	var frames := load(save_path) as SpriteFrames
 	if frames == null:
 		_set_status(_t("output_not_spriteframes") % save_path, true)
-	return frames
-
-
-func _build_sprite_frames(states: Array[Dictionary], directions: Array[Dictionary]) -> SpriteFrames:
-	var frames := SpriteFrames.new()
-	_clear_animations(frames)
-	for state in states:
-		for direction in directions:
-			var animation_name := StringName("%s_%s" % [state.name, direction.name])
-			frames.add_animation(animation_name)
-			frames.set_animation_speed(animation_name, float(state.fps))
-			frames.set_animation_loop_mode(animation_name, SpriteFrames.LOOP_LINEAR if state.loop else SpriteFrames.LOOP_NONE)
-			for frame_index in int(state.frame_count):
-				var region := _cell_region(int(state.start_column) + frame_index, int(direction.row))
-				var atlas_frame := AtlasTexture.new()
-				atlas_frame.atlas = source_texture
-				atlas_frame.region = region
-				frames.add_frame(animation_name, atlas_frame)
 	return frames
 
 
@@ -618,33 +609,6 @@ func _overwrite_confirmed() -> void:
 	confirmed_overwrite_path = pending_overwrite_path
 	pending_overwrite_path = ""
 	_generate()
-
-
-func _copy_animations(source: SpriteFrames, target: SpriteFrames) -> void:
-	# Keep the cached target resource alive for open editor inspectors and rollback.
-	_clear_animations(target)
-	for animation_name in source.get_animation_names():
-		target.add_animation(animation_name)
-		target.set_animation_speed(animation_name, source.get_animation_speed(animation_name))
-		target.set_animation_loop_mode(animation_name, source.get_animation_loop_mode(animation_name))
-		for frame_index in source.get_frame_count(animation_name):
-			target.add_frame(
-				animation_name,
-				source.get_frame_texture(animation_name, frame_index),
-				source.get_frame_duration(animation_name, frame_index)
-			)
-
-
-func _clear_animations(frames: SpriteFrames) -> void:
-	for animation_name in frames.get_animation_names():
-		frames.remove_animation(animation_name)
-
-
-func _frame_total(states: Array[Dictionary], directions: Array[Dictionary]) -> int:
-	var frames_per_direction := 0
-	for state in states:
-		frames_per_direction += int(state.frame_count)
-	return frames_per_direction * directions.size()
 
 
 func _resolve_save_path() -> String:

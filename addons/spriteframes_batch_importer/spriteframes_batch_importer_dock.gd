@@ -306,7 +306,12 @@ func _add_state(state_name: String, count: int, loop: bool, start_column: int) -
 	start_spin.value_changed.connect(_setting_changed)
 	start_row.add_child(start_spin)
 
-	state_entries.append({"panel": panel, "name": name_edit, "count": count_spin, "loop": loop_check, "use_default_fps": use_default_fps, "state_fps": state_fps, "state_fps_label": state_fps_label, "start": start_spin, "remove": remove, "count_label": count_label, "start_label": start_label})
+	state_entries.append({
+		"panel": panel, "name": name_edit, "count": count_spin, "loop": loop_check,
+		"use_default_fps": use_default_fps, "state_fps": state_fps,
+		"state_fps_label": state_fps_label, "start": start_spin, "remove": remove,
+		"count_label": count_label, "start_label": start_label
+	})
 	remove.pressed.connect(_remove_state.bind(panel))
 	_refresh_preview()
 
@@ -344,7 +349,10 @@ func _add_direction(direction_name: String, row_index: int) -> void:
 	var remove := Button.new()
 	remove.text = _t("remove")
 	row.add_child(remove)
-	direction_entries.append({"row_control": row, "name": name_edit, "row": row_spin, "row_label": row_label, "remove": remove})
+	direction_entries.append({
+		"row_control": row, "name": name_edit, "row": row_spin,
+		"row_label": row_label, "remove": remove
+	})
 	remove.pressed.connect(_remove_direction.bind(row))
 	_refresh_preview()
 
@@ -512,7 +520,11 @@ func _resolved_states() -> Array[Dictionary]:
 		var resolved_start := explicit_start if explicit_start >= 0 else next_column
 		var count := int(entry.count.value)
 		var animation_fps: float = float(fps.value if entry.use_default_fps.button_pressed else entry.state_fps.value)
-		result.append({"name": entry.name.text.strip_edges().to_snake_case(), "frame_count": count, "loop": entry.loop.button_pressed, "fps": animation_fps, "start_column": resolved_start})
+		result.append({
+			"name": entry.name.text.strip_edges().to_snake_case(), "frame_count": count,
+			"loop": entry.loop.button_pressed, "fps": animation_fps,
+			"start_column": resolved_start
+		})
 		next_column = resolved_start + count
 	return result
 
@@ -530,11 +542,21 @@ func _refresh_preview() -> void:
 	var states := _resolved_states()
 	var directions := _resolved_directions()
 	if is_instance_valid(preview):
-		preview.configure(source_texture, Vector2i(int(frame_width.value), int(frame_height.value)), Vector2i(int(margin_x.value), int(margin_y.value)), Vector2i(int(spacing_x.value), int(spacing_y.value)), states, directions)
+		preview.configure(
+			source_texture,
+			Vector2i(int(frame_width.value), int(frame_height.value)),
+			Vector2i(int(margin_x.value), int(margin_y.value)),
+			Vector2i(int(spacing_x.value), int(spacing_y.value)),
+			states,
+			directions
+		)
 	var frames_per_direction := 0
 	for state in states:
 		frames_per_direction += int(state.frame_count)
-	preview_summary.text = _t("summary") % [states.size(), directions.size(), states.size() * directions.size(), frames_per_direction * directions.size()]
+	preview_summary.text = _t("summary") % [
+		states.size(), directions.size(), states.size() * directions.size(),
+		frames_per_direction * directions.size()
+	]
 
 
 func _generate() -> void:
@@ -639,7 +661,11 @@ func _copy_animations(source: SpriteFrames, target: SpriteFrames) -> void:
 		target.set_animation_speed(animation_name, source.get_animation_speed(animation_name))
 		target.set_animation_loop_mode(animation_name, source.get_animation_loop_mode(animation_name))
 		for frame_index in source.get_frame_count(animation_name):
-			target.add_frame(animation_name, source.get_frame_texture(animation_name, frame_index), source.get_frame_duration(animation_name, frame_index))
+			target.add_frame(
+				animation_name,
+				source.get_frame_texture(animation_name, frame_index),
+				source.get_frame_duration(animation_name, frame_index)
+			)
 
 
 func _clear_animations(frames: SpriteFrames) -> void:
@@ -705,7 +731,11 @@ func _validate_regions(states: Array[Dictionary], directions: Array[Dictionary])
 			var animation_name := "%s_%s" % [state.name, direction.name]
 			for frame_index in int(state.frame_count):
 				var region := _cell_region(int(state.start_column) + frame_index, int(direction.row))
-				if region.position.x < 0.0 or region.position.y < 0.0 or region.end.x > source_texture.get_width() or region.end.y > source_texture.get_height():
+				if (
+					region.position.x < 0.0 or region.position.y < 0.0
+					or region.end.x > source_texture.get_width()
+					or region.end.y > source_texture.get_height()
+				):
 					_set_status(_t("out_of_bounds") % [animation_name, frame_index + 1], true)
 					return false
 	return true
@@ -732,7 +762,12 @@ func _validate(states: Array[Dictionary], directions: Array[Dictionary]) -> bool
 
 
 func _cell_region(column: int, row: int) -> Rect2:
-	return Rect2(margin_x.value + column * (frame_width.value + spacing_x.value), margin_y.value + row * (frame_height.value + spacing_y.value), frame_width.value, frame_height.value)
+	return Rect2(
+		margin_x.value + column * (frame_width.value + spacing_x.value),
+		margin_y.value + row * (frame_height.value + spacing_y.value),
+		frame_width.value,
+		frame_height.value
+	)
 
 
 func _t(key: String) -> String:

@@ -2,6 +2,18 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
+<p align="center">
+  <img src="media/plugin-cover.png" alt="SpriteFrames Batch Importer cover" width="512">
+</p>
+
+<p align="center">
+  A Godot 4 editor plugin for turning rule-based sprite sheets into named <code>SpriteFrames</code> animations.
+</p>
+
+<p align="center">
+  <a href="media/godot-spriteframes-batch-importer-workflow.mp4">Watch the workflow demo</a>
+</p>
+
 Godot 4 editor dock for generating named `SpriteFrames` resources from rule-based sprite sheets.
 
 The dock includes Chinese and English UI, a zoomable live sprite-sheet preview with colored frame selections, visual state rows, visual direction rows, add/remove buttons, loop toggles, frame counts, and optional explicit start columns. Overlapping state selections use contrasting colors plus a white cross marker. Changes in the dock are reflected in the preview immediately.

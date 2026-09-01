@@ -68,7 +68,7 @@ func _draw() -> void:
 		var state_color := _state_color(state, state_index)
 		for direction_index in direction_definitions.size():
 			var direction := direction_definitions[direction_index]
-			var color := _direction_color(state_color, direction_index)
+			var color := state_color
 			for frame_index in int(state.frame_count):
 				var column := int(state.start_column) + frame_index
 				var row := int(direction.row)
@@ -92,13 +92,6 @@ func _state_color(state: Dictionary, state_index: int) -> Color:
 	if state_name == "death" or state_name.contains("dead") or state_name.contains("die"):
 		return Color(0.85, 0.18, 1.0, 0.38)
 	return STATE_COLORS[state_index % STATE_COLORS.size()]
-
-
-func _direction_color(base_color: Color, direction_index: int) -> Color:
-	var last_direction_index := maxi(direction_definitions.size() - 1, 1)
-	var saturation_position := float(direction_index) / float(last_direction_index)
-	var saturation := lerpf(base_color.s, 0.20, saturation_position)
-	return Color.from_hsv(base_color.h, saturation, base_color.v, base_color.a)
 
 
 func _draw_direction_index(region: Rect2, direction_number: int) -> void:

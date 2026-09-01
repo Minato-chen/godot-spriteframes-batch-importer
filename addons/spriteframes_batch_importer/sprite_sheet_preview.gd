@@ -96,10 +96,9 @@ func _state_color(state: Dictionary, state_index: int) -> Color:
 
 func _direction_color(base_color: Color, direction_index: int) -> Color:
 	var last_direction_index := maxi(direction_definitions.size() - 1, 1)
-	var shade_position := float(direction_index) / float(last_direction_index)
-	var color := base_color.darkened(shade_position * 0.45)
-	color.a = base_color.a
-	return color
+	var saturation_position := float(direction_index) / float(last_direction_index)
+	var saturation := lerpf(base_color.s, 0.45, saturation_position)
+	return Color.from_hsv(base_color.h, saturation, base_color.v, base_color.a)
 
 
 func _draw_direction_index(region: Rect2, direction_number: int) -> void:

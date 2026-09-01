@@ -76,6 +76,7 @@ func _draw() -> void:
 				var screen_region := Rect2(origin + source_region.position * scale_factor, source_region.size * scale_factor)
 				draw_rect(screen_region, color, true)
 				draw_rect(screen_region, Color(color.r, color.g, color.b, 0.95), false, max(1.0, scale_factor))
+				_draw_direction_index(screen_region, direction_index + 1)
 				var cell := Vector2i(column, row)
 				selection_counts[cell] = int(selection_counts.get(cell, 0)) + 1
 				selected_regions[cell] = screen_region
@@ -99,6 +100,29 @@ func _direction_color(base_color: Color, direction_index: int) -> Color:
 	var color := base_color.darkened(shade_position * 0.45)
 	color.a = base_color.a
 	return color
+
+
+func _draw_direction_index(region: Rect2, direction_number: int) -> void:
+	var cell_size := minf(region.size.x, region.size.y)
+	if cell_size < 12.0:
+		return
+	var font := get_theme_default_font()
+	var font_size := clampi(int(round(cell_size * 0.38)), 8, 16)
+	var label := str(direction_number)
+	var text_size := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
+	var padding := maxf(1.0, cell_size * 0.06)
+	var badge_size := text_size + Vector2(padding * 2.0, padding)
+	draw_rect(Rect2(region.position, badge_size), Color(0.02, 0.03, 0.05, 0.82), true)
+	var text_position := region.position + Vector2(padding, font.get_ascent(font_size))
+	draw_string(
+		font,
+		text_position,
+		label,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1.0,
+		font_size,
+		Color.WHITE
+	)
 
 
 func _draw_overlap_marker(region: Rect2) -> void:

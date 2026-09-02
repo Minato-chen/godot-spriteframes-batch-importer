@@ -3,7 +3,7 @@
 [English](README.md) | **简体中文**
 
 <p align="center">
-  <img src="media/plugin-cover.png" alt="SpriteFrames 批量导入器封面" width="512">
+  <img src="media/plugin-banner.png" alt="SpriteFrames 批量导入器" width="900">
 </p>
 
 <p align="center">

@@ -3,7 +3,7 @@
 **English** | [简体中文](README.zh-CN.md)
 
 <p align="center">
-  <img src="media/plugin-cover.png" alt="SpriteFrames Batch Importer cover" width="512">
+  <img src="media/plugin-banner.png" alt="SpriteFrames Batch Importer" width="900">
 </p>
 
 <p align="center">
